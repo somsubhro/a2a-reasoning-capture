@@ -98,9 +98,14 @@ turn   stateful  stateless
   grows roughly quadratically. By turn 16 one call carried 2,055 characters to deliver a
   37-character question. Agent 2 re-read and replayed 108 earlier requests in all. With a
   real LLM, that is 108 requests' worth of input tokens re-processed.
-- **A2A echoes what you send.** The first event of every task returns the message inside
-  the task's history. So stateless pays twice: the whole history goes out, then comes
-  straight back (inbound bytes 33,620 vs 18,720).
+- **With these defaults, what you send comes straight back.** The first streamed event of
+  every task is the Task object, including its message history, and our Agent 2 stores
+  the incoming message there. Agent 1 never limited that history, so stateless paid
+  twice: the whole history went out, then came straight back (inbound bytes 33,620 vs
+  18,720). This isn't forced by A2A. A follow-up check showed that Agent 1 setting
+  `history_length=0` on the request removes the echo, while Agent 2 still keeps the record.
+  It only fixes the incoming half: stateless still has to *send* the whole history,
+  because that's how it works without Agent 2's memory.
 - **A2A's own tools fit the stateful pattern.** With `contextId`, a clarification is a
   7-character reply on the *same* paused task. Stateless can't resume a task without
   breaking its own rule, so it opens a new one and leaves the paused task hanging in
@@ -109,6 +114,38 @@ turn   stateful  stateless
   Agent 2 must hold state per `contextId` (285 characters here; far more with an LLM's
   history), and Agent 1 has to trust it. If Agent 2 restarts or evicts the context,
   follow-ups silently break, and from e01 we know Agent 1 can't see Agent 2's memory to check.
+- **The protocol supplies the ID; the memory is a promise.** See "Who does the remembering?" below.
+
+## Who does the remembering?
+
+Stateful only worked because **we wrote Agent 2 to remember**. Neither A2A nor the SDK did it for us.
+
+| Layer | What it provides | Remembers the conversation for Agent 2? |
+|---|---|---|
+| A2A protocol | `contextId`: a label meaning "these messages belong to one conversation" | No. It defines what the ID means, not that any memory sits behind it |
+| A2A Python SDK | Generates IDs; keeps a task store (each task with its own messages) | Not automatically. Agent 2 receives the new message and the ID, plus the current task only when resuming an `input-required` one. Earlier tasks are passed in only if Agent 1 lists them in `reference_task_ids` *and* the server enables `should_populate_referred_tasks` (off by default), and even then turning them into memory is the agent's job |
+| Our Agent 2 | `self.memory[context_id]`: a working state per conversation ([`agent2.py`](agent2.py)) | Yes, because we built it |
+
+How it plays out across turns:
+
+```
+turn 2   Agent 1 → "combined population of Norway and Denmark?"   (no contextId)
+         server creates ctx-abc · Agent 2 writes memory[ctx-abc] = {Norway, Denmark, totals…}
+turn 3   Agent 1 → "Now add Sweden." + ctx-abc
+         Agent 2 reads memory[ctx-abc], adds Sweden, writes it back
+turn 9   Agent 1 → "Finland" + ctx-abc + taskId of the paused task   (resumes the clarification)
+```
+
+Without that notebook, the stateful run would still "work" at the protocol level (valid
+IDs, completed tasks, no errors) but turn 3 onwards would be answered wrongly, because
+"Now add Sweden" means nothing on its own.
+
+Agent frameworks that support A2A commonly link `contextId` to their own session or
+thread memory, so remembering often *feels* like a default. But that's the framework's
+choice, and how much it keeps, for how long, and whether it survives a restart all vary
+(not checked here for any specific framework). From Agent 1's side there's no way to
+tell, which is e01's opacity again: **Agent 1 holds the ID; only Agent 2 knows whether
+anything is behind it.**
 - **Small talk leaks into stateless calls.** Agent 1 pasted its whole conversation,
   including turns that never involved Agent 2, so Agent 2 paid to read those too.
   A smarter stateless Agent 1 would filter the history, but that's a judgement call
@@ -123,7 +160,8 @@ turn   stateful  stateless
 - The A2A SDK logs `Dispatcher task is not running` once per run, while cleaning up a task
   that paused for input. All events arrived and every answer was correct, so it doesn't
   affect the results.
-- Not tested yet: limiting the echo with `history_length`, or a summarising stateless Agent 1.
+- The `history_length=0` fix was checked in a separate one-off test, not in this run's
+  numbers. Not tested yet: a summarising stateless Agent 1.
 
 ## Next question
 
