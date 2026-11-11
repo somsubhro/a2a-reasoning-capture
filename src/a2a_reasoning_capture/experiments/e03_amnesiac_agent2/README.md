@@ -102,5 +102,6 @@ What the graceful (no-crash) Agent 2 told Agent 1, all reported as `completed`:
 
 ## Next question
 
-If wrong answers look exactly like right ones at the protocol level, how do you
-**evaluate** Agent 2 when you can only reach it through A2A? → **e04**
+Agent 2 here is a script, so its failures are whatever the script happens to do.
+Does a **real model** without memory also answer wrongly in silence, or does it
+notice and say so? → **e04**

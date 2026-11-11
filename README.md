@@ -19,6 +19,7 @@ Read them in order: each one's "next question" is the next one's starting point.
 | e01 | [Opaque baseline](src/a2a_reasoning_capture/experiments/e01_opaque_baseline/README.md) | With A2A's default behaviour, how much of Agent 2's reasoning loop can Agent 1 see? | None of it: 0 of 16 intermediate steps. Only final answers cross the wire. | `e01-opaque-baseline` |
 | e02 | [Multi-turn context](src/a2a_reasoning_capture/experiments/e02_multiturn_context/README.md) | If the user only talks to Agent 1, how efficient is multi-turn when Agent 1 relies on Agent 2's memory (`contextId`) versus resending the history? | Both got 13/13 follow-ups right. Resending history cost 33× more and kept growing, and left a clarification task orphaned. Reusing `contextId` is cheap but makes Agent 1 trust memory it can't see. | `e02-multiturn-context` |
 | e03 | [Amnesiac Agent 2](src/a2a_reasoning_capture/experiments/e03_amnesiac_agent2/README.md) | If Agent 2 silently has no memory behind the `contextId`, does the conversation still look healthy at the protocol level? | Yes. Every follow-up was wrong, yet with a non-crashing Agent 2 all 11 wrong answers came back `completed`, with the same `contextId`, valid IDs and no errors. Only a crashing Agent 2 produced any errors, and only by accident. | `e03-amnesiac-agent2` |
+| e04 | [Amnesiac Agent 2, real model](src/a2a_reasoning_capture/experiments/e04_amnesiac_claude/README.md) | With Claude Opus 5.5 as Agent 2 and no memory, does it guess, ask or admit it doesn't know? | Mostly it asked (11 of 12 follow-ups paused in `input-required`), but one confident wrong answer still came back `completed`. Our Agent 1 then sent every next message, small talk included, as "the answer", chaining 7 requests into one task. Memory cost 3.7× the input tokens. $0.41. | `e04-amnesiac-claude` |
 
 ## Running
 
@@ -40,8 +41,10 @@ Each run writes to `runs/<experiment>/<timestamp>-<label>/`:
 | `wire.jsonl` | Raw HTTP traffic between the agents |
 | `scorecard.md` / `.json` | The results |
 
-Agent 2's brain is scripted by default (repeatable, free). `--reasoner claude`
-swaps in Claude Opus 5.5 where an experiment supports it (needs `ANTHROPIC_API_KEY`).
+Agent 2's brain is scripted by default (repeatable, free). Experiments that use a real
+model (e04, and `e01 --reasoner claude`) need an Anthropic API key. Put
+`ANTHROPIC_API_KEY=...` in a `.env` file at the repo root (gitignored) and run them with
+`uv run --env-file .env a2a-exp <id>`. `a2a-exp all` skips paid experiments when no key is set.
 
 ## Layout
 
@@ -49,6 +52,7 @@ swaps in Claude Opus 5.5 where an experiment supports it (needs `ANTHROPIC_API_K
 src/a2a_reasoning_capture/
   core/                 shared by every experiment
     reasoners.py          Agent 2's tools and brains (scripted, Claude)
+    claude_agent.py       Agent 2 as a real Claude tool-use loop, with ask_user and token/cost tracking
     remote_agent.py       Agent 2's A2A server (opaque; supports input-required)
     recording.py          run folders, JSONL logs, raw-HTTP recorder, local server
     scoring.py            ground truth vs what Agent 1 received

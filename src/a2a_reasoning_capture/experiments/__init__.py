@@ -13,6 +13,7 @@ EXPERIMENTS = {
     "e01": "e01_opaque_baseline",
     "e02": "e02_multiturn_context",
     "e03": "e03_amnesiac_agent2",
+    "e04": "e04_amnesiac_claude",
 }
 
 
