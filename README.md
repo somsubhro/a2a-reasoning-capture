@@ -18,6 +18,7 @@ Read them in order: each one's "next question" is the next one's starting point.
 |---|---|---|---|---|
 | e01 | [Opaque baseline](src/a2a_reasoning_capture/experiments/e01_opaque_baseline/README.md) | With A2A's default behaviour, how much of Agent 2's reasoning loop can Agent 1 see? | None of it: 0 of 16 intermediate steps. Only final answers cross the wire. | `e01-opaque-baseline` |
 | e02 | [Multi-turn context](src/a2a_reasoning_capture/experiments/e02_multiturn_context/README.md) | If the user only talks to Agent 1, how efficient is multi-turn when Agent 1 relies on Agent 2's memory (`contextId`) versus resending the history? | Both got 13/13 follow-ups right. Resending history cost 33× more and kept growing, and left a clarification task orphaned. Reusing `contextId` is cheap but makes Agent 1 trust memory it can't see. | `e02-multiturn-context` |
+| e03 | [Amnesiac Agent 2](src/a2a_reasoning_capture/experiments/e03_amnesiac_agent2/README.md) | If Agent 2 silently has no memory behind the `contextId`, does the conversation still look healthy at the protocol level? | Yes. Every follow-up was wrong, yet with a non-crashing Agent 2 all 11 wrong answers came back `completed`, with the same `contextId`, valid IDs and no errors. Only a crashing Agent 2 produced any errors, and only by accident. | `e03-amnesiac-agent2` |
 
 ## Running
 

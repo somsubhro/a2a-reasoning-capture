@@ -12,6 +12,7 @@ import importlib
 EXPERIMENTS = {
     "e01": "e01_opaque_baseline",
     "e02": "e02_multiturn_context",
+    "e03": "e03_amnesiac_agent2",
 }
 
 

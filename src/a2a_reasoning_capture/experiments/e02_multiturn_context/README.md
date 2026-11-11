@@ -165,5 +165,6 @@ anything is behind it.**
 
 ## Next question
 
-Agent 2 is now a black box that holds state Agent 1 can't inspect. How hard is it to
-**evaluate** Agent 2, when you can only reach it through A2A? → **e03**
+Stateful only works because Agent 2 chose to build memory behind the `contextId`.
+If that memory silently isn't there, does anything at the protocol level tell
+Agent 1? → **e03**

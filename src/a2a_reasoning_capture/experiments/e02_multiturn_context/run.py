@@ -79,31 +79,20 @@ class EntryAgent:
 
         self.transport.label = n
         t0 = time.time()
-        state, answer, question = None, "", ""
-        task_id = context_id = None
-        async for ev in self.client.send_message(SendMessageRequest(message=msg)):
-            d = to_dict(ev)
-            append_jsonl(self.out / "client_received.jsonl", {"t": time.time(), "turn": n, "event": d})
-            for kind in ("task", "status_update", "artifact_update"):
-                obj = d.get(kind)
-                if not obj:
-                    continue
-                task_id = obj.get("id") or obj.get("task_id") or task_id
-                context_id = obj.get("context_id") or context_id
-                status = obj.get("status") or {}
-                if status.get("state"):
-                    state = status["state"]
-                if status.get("message"):
-                    question = " ".join(p.get("text", "") for p in status["message"].get("parts", []))
-                if kind == "artifact_update":
-                    answer += " ".join(p.get("text", "") for p in obj["artifact"].get("parts", []))
+        error = None
+        try:
+            await self._stream(n, msg, collect := {})
+        except Exception as e:  # noqa: BLE001  (a protocol-level error Agent 1 would see)
+            error = f"{type(e).__name__}: {e}"
+        state, answer, question = collect.get("state"), collect.get("answer", ""), collect.get("question", "")
+        task_id, context_id = collect.get("task_id"), collect.get("context_id")
         latency = (time.time() - t0) * 1000
 
         if task_id and task_id not in self.task_ids:
             self.task_ids.append(task_id)
         if context_id and context_id not in self.context_ids:
             self.context_ids.append(context_id)
-        if self.strategy == "stateful":
+        if self.strategy == "stateful" and context_id:
             self.context_id = context_id
         input_required = state == "TASK_STATE_INPUT_REQUIRED"
         self.pending_task = task_id if input_required else None
@@ -116,9 +105,30 @@ class EntryAgent:
             "bytes_in": sum(w["bytes"] for w in wire if w["dir"] == "in"),
             "latency_ms": round(latency, 1),
             "resumed_task": resumed,
+            "error": error,
             "task_id": task_id,
             "context_id": context_id,
         }
+
+    async def _stream(self, n: int, msg: Message, c: dict[str, Any]) -> None:
+        """Send one message and collect state, answer, question and IDs into `c`."""
+        c["answer"] = ""
+        async for ev in self.client.send_message(SendMessageRequest(message=msg)):
+            d = to_dict(ev)
+            append_jsonl(self.out / "client_received.jsonl", {"t": time.time(), "turn": n, "event": d})
+            for kind in ("task", "status_update", "artifact_update"):
+                obj = d.get(kind)
+                if not obj:
+                    continue
+                c["task_id"] = obj.get("id") or obj.get("task_id") or c.get("task_id")
+                c["context_id"] = obj.get("context_id") or c.get("context_id")
+                status = obj.get("status") or {}
+                if status.get("state"):
+                    c["state"] = status["state"]
+                if status.get("message"):
+                    c["question"] = " ".join(p.get("text", "") for p in status["message"].get("parts", []))
+                if kind == "artifact_update":
+                    c["answer"] += " ".join(p.get("text", "") for p in obj["artifact"].get("parts", []))
 
 
 async def run_strategy(url: str, strategy: str, out: Path) -> tuple[list[dict], EntryAgent, dict[str, str]]:
