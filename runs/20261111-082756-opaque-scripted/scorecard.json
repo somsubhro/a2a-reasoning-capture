@@ -1,0 +1,257 @@
+{
+  "mode": "opaque",
+  "reasoner": "scripted",
+  "turns": [
+    {
+      "turn": 1,
+      "task_id": "a652c668-53c0-4e4f-96e7-16b564c2b61b",
+      "context_id": "b1418615-4cac-43d5-a860-aca54a279721",
+      "seconds": 0.007811784744262695
+    },
+    {
+      "turn": 2,
+      "task_id": "42c360c2-43b6-4549-95f9-9ae5c3c91d29",
+      "context_id": "b1418615-4cac-43d5-a860-aca54a279721",
+      "seconds": 0.004611968994140625
+    }
+  ],
+  "per_step": [
+    {
+      "seq": 1,
+      "task_id": "a652c668-53c0-4e4f-96e7-16b564c2b61b",
+      "kind": "thinking",
+      "recovered": false,
+      "via": [],
+      "delay_ms": null,
+      "arrival_idx": null,
+      "text": "Turn 1 in context. User asks about ['norway', 'denmark']. I remember from earlie"
+    },
+    {
+      "seq": 2,
+      "task_id": "a652c668-53c0-4e4f-96e7-16b564c2b61b",
+      "kind": "tool_call",
+      "recovered": false,
+      "via": [],
+      "delay_ms": null,
+      "arrival_idx": null,
+      "text": "{\"input\": {\"query\": \"population of norway\"}, \"name\": \"lookup_fact\"}"
+    },
+    {
+      "seq": 3,
+      "task_id": "a652c668-53c0-4e4f-96e7-16b564c2b61b",
+      "kind": "tool_result",
+      "recovered": false,
+      "via": [],
+      "delay_ms": null,
+      "arrival_idx": null,
+      "text": "{\"name\": \"lookup_fact\", \"output\": \"5,550,000 (2024 estimate)\"}"
+    },
+    {
+      "seq": 4,
+      "task_id": "a652c668-53c0-4e4f-96e7-16b564c2b61b",
+      "kind": "tool_call",
+      "recovered": false,
+      "via": [],
+      "delay_ms": null,
+      "arrival_idx": null,
+      "text": "{\"input\": {\"query\": \"population of denmark\"}, \"name\": \"lookup_fact\"}"
+    },
+    {
+      "seq": 5,
+      "task_id": "a652c668-53c0-4e4f-96e7-16b564c2b61b",
+      "kind": "tool_result",
+      "recovered": false,
+      "via": [],
+      "delay_ms": null,
+      "arrival_idx": null,
+      "text": "{\"name\": \"lookup_fact\", \"output\": \"5,960,000 (2024 estimate)\"}"
+    },
+    {
+      "seq": 6,
+      "task_id": "a652c668-53c0-4e4f-96e7-16b564c2b61b",
+      "kind": "thinking",
+      "recovered": false,
+      "via": [],
+      "delay_ms": null,
+      "arrival_idx": null,
+      "text": "I now have populations for ['norway', 'denmark']. Summing them and computing eac"
+    },
+    {
+      "seq": 7,
+      "task_id": "a652c668-53c0-4e4f-96e7-16b564c2b61b",
+      "kind": "tool_call",
+      "recovered": false,
+      "via": [],
+      "delay_ms": null,
+      "arrival_idx": null,
+      "text": "{\"input\": {\"expression\": \"5550000 + 5960000\"}, \"name\": \"calculate\"}"
+    },
+    {
+      "seq": 8,
+      "task_id": "a652c668-53c0-4e4f-96e7-16b564c2b61b",
+      "kind": "tool_result",
+      "recovered": false,
+      "via": [],
+      "delay_ms": null,
+      "arrival_idx": null,
+      "text": "{\"name\": \"calculate\", \"output\": \"11510000\"}"
+    },
+    {
+      "seq": 9,
+      "task_id": "a652c668-53c0-4e4f-96e7-16b564c2b61b",
+      "kind": "text",
+      "recovered": false,
+      "via": [],
+      "delay_ms": null,
+      "arrival_idx": null,
+      "text": "Checked the numbers; writing the answer."
+    },
+    {
+      "seq": 10,
+      "task_id": "a652c668-53c0-4e4f-96e7-16b564c2b61b",
+      "kind": "final",
+      "recovered": true,
+      "via": [
+        "get_task",
+        "stream"
+      ],
+      "delay_ms": 4.6,
+      "arrival_idx": 2,
+      "text": "Combined population of Norway, Denmark: 11,510,000. Shares: Norway 48.2%, Denmar"
+    },
+    {
+      "seq": 1,
+      "task_id": "42c360c2-43b6-4549-95f9-9ae5c3c91d29",
+      "kind": "thinking",
+      "recovered": false,
+      "via": [],
+      "delay_ms": null,
+      "arrival_idx": null,
+      "text": "Turn 2 in context. User asks about ['sweden']. I remember from earlier turns: ['"
+    },
+    {
+      "seq": 2,
+      "task_id": "42c360c2-43b6-4549-95f9-9ae5c3c91d29",
+      "kind": "tool_call",
+      "recovered": false,
+      "via": [],
+      "delay_ms": null,
+      "arrival_idx": null,
+      "text": "{\"input\": {\"query\": \"population of sweden\"}, \"name\": \"lookup_fact\"}"
+    },
+    {
+      "seq": 3,
+      "task_id": "42c360c2-43b6-4549-95f9-9ae5c3c91d29",
+      "kind": "tool_result",
+      "recovered": false,
+      "via": [],
+      "delay_ms": null,
+      "arrival_idx": null,
+      "text": "{\"name\": \"lookup_fact\", \"output\": \"10,550,000 (2024 estimate)\"}"
+    },
+    {
+      "seq": 4,
+      "task_id": "42c360c2-43b6-4549-95f9-9ae5c3c91d29",
+      "kind": "thinking",
+      "recovered": false,
+      "via": [],
+      "delay_ms": null,
+      "arrival_idx": null,
+      "text": "I now have populations for ['norway', 'denmark', 'sweden']. Summing them and com"
+    },
+    {
+      "seq": 5,
+      "task_id": "42c360c2-43b6-4549-95f9-9ae5c3c91d29",
+      "kind": "tool_call",
+      "recovered": false,
+      "via": [],
+      "delay_ms": null,
+      "arrival_idx": null,
+      "text": "{\"input\": {\"expression\": \"5550000 + 5960000 + 10550000\"}, \"name\": \"calculate\"}"
+    },
+    {
+      "seq": 6,
+      "task_id": "42c360c2-43b6-4549-95f9-9ae5c3c91d29",
+      "kind": "tool_result",
+      "recovered": false,
+      "via": [],
+      "delay_ms": null,
+      "arrival_idx": null,
+      "text": "{\"name\": \"calculate\", \"output\": \"22060000\"}"
+    },
+    {
+      "seq": 7,
+      "task_id": "42c360c2-43b6-4549-95f9-9ae5c3c91d29",
+      "kind": "text",
+      "recovered": false,
+      "via": [],
+      "delay_ms": null,
+      "arrival_idx": null,
+      "text": "Checked the numbers; writing the answer."
+    },
+    {
+      "seq": 8,
+      "task_id": "42c360c2-43b6-4549-95f9-9ae5c3c91d29",
+      "kind": "final",
+      "recovered": true,
+      "via": [
+        "get_task",
+        "stream"
+      ],
+      "delay_ms": 2.1,
+      "arrival_idx": 7,
+      "text": "Combined population of Norway, Denmark, Sweden: 22,060,000. Shares: Norway 25.2%"
+    }
+  ],
+  "by_kind": {
+    "thinking": {
+      "steps": 4,
+      "recovered": 0,
+      "pct": 0,
+      "via_stream": 0,
+      "via_get_task": 0
+    },
+    "tool_call": {
+      "steps": 5,
+      "recovered": 0,
+      "pct": 0,
+      "via_stream": 0,
+      "via_get_task": 0
+    },
+    "tool_result": {
+      "steps": 5,
+      "recovered": 0,
+      "pct": 0,
+      "via_stream": 0,
+      "via_get_task": 0
+    },
+    "text": {
+      "steps": 2,
+      "recovered": 0,
+      "pct": 0,
+      "via_stream": 0,
+      "via_get_task": 0
+    },
+    "final": {
+      "steps": 2,
+      "recovered": 2,
+      "pct": 100,
+      "via_stream": 2,
+      "via_get_task": 2
+    }
+  },
+  "summary": {
+    "ground_truth_steps": 18,
+    "recovered_steps": 2,
+    "recovered_pct": 11,
+    "intermediate_steps_recovered": "0/16",
+    "order_preserved_for_recovered": true,
+    "min_delay_ms": 2.1,
+    "max_delay_ms": 4.6,
+    "stream_events_received": 8,
+    "wire_bytes_in": 4926,
+    "wire_bytes_out": 960,
+    "same_context_id_both_turns": true,
+    "agent2_remembered_turn1": true
+  }
+}
