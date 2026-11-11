@@ -1,4 +1,4 @@
-"""Agent 2's internal reasoning loop.
+"""Shared Agent 2 tools and reasoning loops (scripted and Claude).
 
 A reasoner yields Step dicts as it works. Every step is also the *ground truth*
 the experiment later tries to recover on Agent 1's side of the A2A wire.
@@ -25,6 +25,7 @@ FACTS = {
     "population of denmark": "5,960,000 (2024 estimate)",
     "population of sweden": "10,550,000 (2024 estimate)",
     "population of finland": "5,600,000 (2024 estimate)",
+    "population of iceland": "390,000 (2024 estimate)",
 }
 
 _OPS = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
@@ -60,7 +61,7 @@ TOOLS = [
     {
         "name": "lookup_fact",
         "description": "Look up a fact. Supported queries look like 'population of <country>' "
-                       "for Norway, Denmark, Sweden, Finland.",
+                       "for Norway, Denmark, Sweden, Finland, Iceland.",
         "input_schema": {"type": "object", "properties": {"query": {"type": "string"}},
                          "required": ["query"], "additionalProperties": False},
         "strict": True,
@@ -95,7 +96,7 @@ class ScriptedReasoner:
     def __init__(self) -> None:
         self.memory: dict[str, dict[str, Any]] = {}
 
-    async def run(self, context_id: str, user_text: str) -> AsyncIterator[dict[str, Any]]:
+    async def run(self, context_id: str, user_text: str, task_id: str | None = None) -> AsyncIterator[dict[str, Any]]:
         mem = self.memory.setdefault(context_id, {"turns": 0, "known": {}})
         mem["turns"] += 1
         text = user_text.lower()
@@ -145,7 +146,7 @@ class ClaudeReasoner:
         self.client = anthropic.AsyncAnthropic()
         self.histories: dict[str, list[dict[str, Any]]] = {}
 
-    async def run(self, context_id: str, user_text: str) -> AsyncIterator[dict[str, Any]]:
+    async def run(self, context_id: str, user_text: str, task_id: str | None = None) -> AsyncIterator[dict[str, Any]]:
         messages = self.histories.setdefault(context_id, [])
         messages.append({"role": "user", "content": user_text})
         system = ("You are a research agent. Use the tools for every fact and every calculation; "

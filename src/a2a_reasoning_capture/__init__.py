@@ -1,2 +1,1 @@
-def main() -> None:
-    print("Hello from a2a-reasoning-capture!")
+"""A2A reasoning-capture experiment."""
